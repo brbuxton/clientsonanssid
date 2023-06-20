@@ -8,11 +8,11 @@ Authored by Brian Buxton
 import meraki
 import csv
 
-API_KEY = '8271c48b328d8f1fb191c196c6035b5793852e8f'
+API_KEY = ''
 dashboard = meraki.DashboardAPI(API_KEY, wait_on_rate_limit=True, nginx_429_retry_wait_time=2, maximum_retries=5)
 organizations = dashboard.organizations.getOrganizations()
-organization = '940024'
-ssid = 'pickles'
+organization = ''
+ssid = ''
 
 
 def find_clients(organization, ssid):
