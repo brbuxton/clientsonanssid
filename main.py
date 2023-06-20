@@ -23,7 +23,7 @@ def find_clients(organization, ssid):
     :rtype: list
     """
     client_list: list
-    client_list = [client for network in dashboard.organizations.getOrganizationNetworks('940024') if 'wireless' in
+    client_list = [client for network in dashboard.organizations.getOrganizationNetworks(organization) if 'wireless' in
                    network['productTypes'] for client in dashboard.networks.getNetworkClients(network['id']) if
                    client['ssid'] == ssid]
     return client_list
