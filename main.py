@@ -5,14 +5,15 @@ in an organization.
 Authored by Brian Buxton
 """
 
-import meraki
+import time
+import requests
 import csv
 
 API_KEY = ''
-dashboard = meraki.DashboardAPI(API_KEY, wait_on_rate_limit=True, nginx_429_retry_wait_time=2, maximum_retries=5)
-organizations = dashboard.organizations.getOrganizations()
+# organizations = dashboard.organizations.getOrganizations()
 organization = ''
 ssid = ''
+APIDelaySeconds = 1
 
 
 def find_clients(organization, ssid):
@@ -22,11 +23,54 @@ def find_clients(organization, ssid):
 
     :rtype: list
     """
+    api = GetAPI(organization)
     client_list: list
-    client_list = [client for network in dashboard.organizations.getOrganizationNetworks(organization) if 'wireless' in
-                   network['productTypes'] for client in dashboard.networks.getNetworkClients(network['id']) if
+    client_list = [client for network in api.get_networks() if 'wireless' in
+                   network['productTypes'] for client in api.get_clients(network['id']) if
                    client['ssid'] == ssid]
     return client_list
+
+
+class GetAPI:
+
+    def __init__(self, organization):
+        self.organization = organization
+
+    def get_networks(self):
+        url = f"https://api.meraki.com/api/v1/organizations/{self.organization}/networks"
+
+        payload = None
+
+        headers = {
+            "Accept": "application/json",
+            "X-Cisco-Meraki-API-Key": API_KEY
+        }
+
+        response = requests.request('GET', url, headers=headers, data=payload)
+
+        print(response.json())
+        return response.json()
+
+    @classmethod
+    def get_clients(cls, network):
+        url = f"https://api.meraki.com/api/v1/networks/{network}/clients"
+
+        payload = None
+
+        headers = {
+            "Accept": "application/json",
+            "X-Cisco-Meraki-API-Key": API_KEY
+        }
+        timer(APIDelaySeconds)
+        response = requests.request('GET', url, headers=headers, data=payload)
+
+        print(response.json())
+        return response.json()
+
+
+def timer(secondCnt):
+    print(f"Sleeping for {secondCnt} seconds")
+    time.sleep(secondCnt)
 
 
 if __name__ == '__main__':
